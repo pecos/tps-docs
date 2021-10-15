@@ -1,5 +1,7 @@
 # TPS docs
 
+![docs](https://github.com/pecos/tps-docs/actions/workflows/docs.yml/badge.svg)
+
 This repository houses underlying documentation collateral using
 [Sphinx](https://www.sphinx-doc.org) for the TPS code hosted at
 https://github.com/pecos/tps.
