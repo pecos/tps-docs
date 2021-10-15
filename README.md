@@ -13,7 +13,7 @@ can clone this repo and use Sphinx to built static html pages.
 * pip3 install sphinx
 * pip3 install sphinx_rtd_theme
 
-#### Building the docs:
+#### Building the docs locally:
 
 * clone the repository
 * `cd docs`
