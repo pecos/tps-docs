@@ -15,6 +15,20 @@ can clone this repo and use Sphinx to built static html pages.
 * pip3 install sphinx
 * pip3 install sphinx_rtd_theme
 
+#### Minimal working container:
+
+If you are the container type, below is a minimal ubuntu-based `Dockerfile` that 
+includes dependencies needed to build the documentation:
+
+```
+FROM ubuntu:latest
+
+RUN apt-get update
+RUN apt-get -y install python3-pip
+RUN pip3 install sphinx
+RUN pip3 install sphinx_rtd_theme
+```
+
 #### Building the docs locally:
 
 * clone the repository
