@@ -12,8 +12,8 @@ can clone this repo and use Sphinx to built static html pages.
 
 #### Necessary software dependencies using Python3/pip:
 
-* pip3 install sphinx
-* pip3 install sphinx_rtd_theme
+* sudo pip3 install sphinx
+* sudo pip3 install sphinx_rtd_theme
 
 #### Minimal working container:
 
