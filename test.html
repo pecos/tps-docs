@@ -40,7 +40,10 @@
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="build.html">Build</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Testing</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Testing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#continuous-integration-ci">Continuous Integration (CI)</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="developer.html">Developer Resources</a></li>
 </ul>
 
@@ -70,6 +73,63 @@
              
   <section id="testing">
 <h1>Testing<a class="headerlink" href="#testing" title="Permalink to this headline"></a></h1>
+<p>The TPS code base maintains a suite of regression tests to help support
+ongoing development. Once the <code class="docutils literal notranslate"><span class="pre">tps</span></code> binary is successfully built, you can
+exercise the test suite locally to confirm the code is working
+satisfactorily. The test-suite relies on the <a class="reference external" href="https://github.com/bats-core/bats-core">Bats</a> unit testing framework and a copy is
+included within the TPS repository.
+Individual tests are housed under the <code class="docutils literal notranslate"><span class="pre">test/</span></code> subdirectory (demarcated via
+the <em>.test</em> suffix).  To run the entire suite, issue:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ make check
+...
+PASS: vpath.sh
+PASS: cyl3d.test 1 [cyl3d] check for input file inputs/input.4iters.cyl
+PASS: cyl3d.test 2 [cyl3d] run tps with input -&gt; inputs/input.4iters.cyl
+PASS: cyl3d.test 3 [cyl3d] verify tps output with input -&gt; inputs/input.4iters.cyl
+PASS: cyl3d.test 4 [cyl3d] verify git sha in HDF5 file
+PASS: cyl3d.test 5 [cyl3d] verify exit code if restart files missing
+PASS: cyl3d.test 6 [cyl3d] verify consistent solution with restart from 2 iters
+PASS: cyl3d.test 7 [cyl3d] verify tps output after variable p restart
+PASS: cyl3d.test 8 [cyl3d] verify serial restart consistency using 2 mpi tasks
+PASS: cyl3d.test 9 [cyl3d] verify serial restart consistency using 4 mpi tasks
+...
+PASS: wedge.test 1 [2d/wedge] check for input file inputs/input.2d.wedge
+PASS: wedge.test 2 [2d/wedge] run tps with input -&gt; inputs/input.2d.wedge
+PASS: wedge.test 3 [2d/wedge] verify computed inlet area in output -&gt; wedge.log
+PASS: wedge.test 4 [2d/wedge] verify # of inlet faces detected -&gt; wedge.log
+PASS: wedge.test 5 [2d/wedge] verify computed inlet outlet in output -&gt; wedge.log
+PASS: wedge.test 6 [2d/wedge] verify # of outlet faces detected -&gt; wedge.log
+============================================================================
+Testsuite summary for tps 1.0 (dev)
+============================================================================
+# TOTAL: 32
+# PASS:  32
+# SKIP:  0
+# XFAIL: 0
+# FAIL:  0
+# XPASS: 0
+# ERROR: 0
+============================================================================
+</pre></div>
+</div>
+<p>Note that individual tests can be run by simply executing the associated Bats
+script. This can be helpful to exercise when a test fails and you want to see
+which specific portions are failing:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ ./cyl3d.mflow.test
+✓ [cyl3d.mflow.outlet] check for input file inputs/input.2iters.mflow.cyl
+✓ [cyl3d.mflow.outlet] verify outlet area calculation with input -&gt; inputs/input.2iters.mflow.cyl
+✓ [cyl3d.mflow.outlet] verify tps output with input -&gt; inputs/input.2iters.mflow.cyl
+✓ [cyl3d.mflow.outlet] verify tps output with input -&gt; inputs/input.2iters.mflow.bulkVisc.dtconst.cyl
+</pre></div>
+</div>
+<section id="continuous-integration-ci">
+<h2>Continuous Integration (CI)<a class="headerlink" href="#continuous-integration-ci" title="Permalink to this headline"></a></h2>
+<p>Thee regression tests highlighted above are exercised automatically as part of
+the CI configuration enabled for pull requests using <a class="reference external" href="https://github.com/pecos/tps/actions/workflows/build.yaml">GitHub Actions</a> . Underlying
+tests differ slightly depending on whether <code class="docutils literal notranslate"><span class="pre">TPS</span></code> is configured for CPU or GPU
+execution and the current CI configuration exercises CPU and two GPU variants
+(Cuda/HIP) on each pull request.</p>
+</section>
 </section>
 
 
