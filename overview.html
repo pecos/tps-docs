@@ -15,6 +15,7 @@
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -91,47 +92,47 @@ future versons of the software.</em></p>
 <section id="numerics">
 <h2>Numerics<a class="headerlink" href="#numerics" title="Permalink to this headline"></a></h2>
 <p>We consider the NS equations expressed in conservative form
-<span class="math">\frac{\partial U}{\partial t}+\nabla\cdot\mathbf{F}\left(U,\nabla V\right)=0</span>
+<span class="math notranslate nohighlight">\(\frac{\partial U}{\partial t}+\nabla\cdot\mathbf{F}\left(U,\nabla V\right)=0\)</span>
 where
-<span class="math">U=\left[\rho,\rho u,\rho v,\rho w,\rho E\right]^{T}</span> is the vector of conservative
+<span class="math notranslate nohighlight">\(U=\left[\rho,\rho u,\rho v,\rho w,\rho E\right]^{T}\)</span> is the vector of conservative
 variables;
-<span class="math">V=\left[\rho,u,v,w,p\right]^{T}</span> is the vector of primitive variables with pressure
-<span class="math">p=\left(\gamma-1\right)\rho\left(E-\frac{1}{2}\left(u^{2}+v^{2}+w^{2}\right)\right)</span>
+<span class="math notranslate nohighlight">\(V=\left[\rho,u,v,w,p\right]^{T}\)</span> is the vector of primitive variables with pressure
+<span class="math notranslate nohighlight">\(p=\left(\gamma-1\right)\rho\left(E-\frac{1}{2}\left(u^{2}+v^{2}+w^{2}\right)\right)\)</span>
 and total energy
-<span class="math">E=c_{v}T+\frac{1}{2}\left(u^{2}+v^{2}+w^{2}\right)</span> ; and
-<span class="math">\mathbf{F}=\left[F_{c}^{x}-F_{v}^{x},F_{c}^{y}-F_{v}^{y},F_{c}^{z}-F_{v}^{z}\right]</span> where
-<span class="math">F_{c}^{i}, F_{v}^{i}</span> are the convective and viscous fluxes, respectively, defined as
-<span class="math">\left[F_{c}^{x},F_{c}^{y},F_{c}^{z}\right]=\left[\begin{array}{ccc}
+<span class="math notranslate nohighlight">\(E=c_{v}T+\frac{1}{2}\left(u^{2}+v^{2}+w^{2}\right)\)</span> ; and
+<span class="math notranslate nohighlight">\(\mathbf{F}=\left[F_{c}^{x}-F_{v}^{x},F_{c}^{y}-F_{v}^{y},F_{c}^{z}-F_{v}^{z}\right]\)</span> where
+<span class="math notranslate nohighlight">\(F_{c}^{i}, F_{v}^{i}\)</span> are the convective and viscous fluxes, respectively, defined as
+<span class="math notranslate nohighlight">\(\left[F_{c}^{x},F_{c}^{y},F_{c}^{z}\right]=\left[\begin{array}{ccc}
 \rho u &amp; \rho v &amp; \rho w\\
 \rho u^{2}+p &amp; \rho uv &amp; \rho uw\\
 \rho uv &amp; \rho v^{2}+p &amp; \rho vw\\
 \rho uw &amp; \rho vw &amp; \rho w^{2}+p\\
 u\left(\rho E+p\right) &amp; v\left(\rho E+p\right) &amp; w\left(\rho E+p\right)
-\end{array}\right]</span></p>
-<p><span class="math">\left[F_{v}^{x},F_{v}^{y},F_{v}^{z}\right]=\left[\begin{array}{ccc}
+\end{array}\right]\)</span></p>
+<p><span class="math notranslate nohighlight">\(\left[F_{v}^{x},F_{v}^{y},F_{v}^{z}\right]=\left[\begin{array}{ccc}
 0 &amp; 0 &amp; 0\\
 \tau_{xx} &amp; \tau_{xy} &amp; \tau_{xz}\\
 \tau_{yx} &amp; \tau_{yy} &amp; \tau_{yz}\\
 \tau_{zx} &amp; \tau_{zy} &amp; \tau_{zz}\\
 u\tau_{xx}+v\tau_{yx}+w\tau_{zx}-q_{x} &amp; u\tau_{xy}+v\tau_{yy}+w\tau_{zy}-q_{y} &amp; u\tau_{xz}+v\tau_{yz}+w\tau_{zz}-q_{z}
-\end{array}\right]</span>
+\end{array}\right]\)</span>
 where the stress tensor
-<span class="math">\tau_{ij}</span> is defined as
-<span class="math">\tau_{ij}=\mu\left(\frac{\partial u_{i}}{\partial x_{j}}+\frac{\partial u_{j}}{\partial x_{i}}\right)-\frac{2}{3}\mu\nabla\cdot\mathbf{v}\delta_{ij}</span>
-and the heat flux <span class="math">\mathbf{q}=-k\nabla T</span> with thermal coefficient
-<span class="math">k=\frac{\mu c_{p}}{Pr}</span> where <span class="math">Pr</span> is the Prandtl number, estimated as
-<span class="math">Pr=0.71</span> for air. The viscosity coefficient follows the Sutherland law
-<span class="math">\mu=\frac{1.458\cdot10^{-6}T^{3/2}}{T+110.4}</span>.</p>
+<span class="math notranslate nohighlight">\(\tau_{ij}\)</span> is defined as
+<span class="math notranslate nohighlight">\(\tau_{ij}=\mu\left(\frac{\partial u_{i}}{\partial x_{j}}+\frac{\partial u_{j}}{\partial x_{i}}\right)-\frac{2}{3}\mu\nabla\cdot\mathbf{v}\delta_{ij}\)</span>
+and the heat flux <span class="math notranslate nohighlight">\(\mathbf{q}=-k\nabla T\)</span> with thermal coefficient
+<span class="math notranslate nohighlight">\(k=\frac{\mu c_{p}}{Pr}\)</span> where <span class="math notranslate nohighlight">\(Pr\)</span> is the Prandtl number, estimated as
+<span class="math notranslate nohighlight">\(Pr=0.71\)</span> for air. The viscosity coefficient follows the Sutherland law
+<span class="math notranslate nohighlight">\(\mu=\frac{1.458\cdot10^{-6}T^{3/2}}{T+110.4}\)</span>.</p>
 <p>The system of equations is expressed as</p>
-<p><span class="math">\begin{aligned}\frac{\partial U}{\partial t}+\nabla\cdot\mathbf{F}\left(U,Q\right) &amp; =0\\
+<p><span class="math notranslate nohighlight">\(\begin{aligned}\frac{\partial U}{\partial t}+\nabla\cdot\mathbf{F}\left(U,Q\right) &amp; =0\\
 Q-\nabla V &amp; =0
-\end{aligned}</span></p>
+\end{aligned}\)</span></p>
 <p>We derive a discontinuous Galerkin formulation of the previous system in the usual manner,
-multiplying by the test function <span class="math">\ell_{j}\left(\xi\right)</span> and integrating over
+multiplying by the test function <span class="math notranslate nohighlight">\(\ell_{j}\left(\xi\right)\)</span> and integrating over
 the element</p>
-<p><span class="math">\frac{\mathrm{d}}{\mathrm{d}t}\intop_{\Omega_{e}}U^{e}\ell_{j}\left(x\right)\mathrm{d}x-\intop_{\Omega_{e}}\mathbf{F}\left(U,Q\right)\cdot\nabla\ell_{j}\left(x\right)\mathrm{d}x=-\intop_{\partial\varOmega_{e}}\mathbf{n}\cdot\mathbf{F}\left(U,Q\right)\ell_{j}\left(x\right)\mathrm{d}S</span></p>
+<p><span class="math notranslate nohighlight">\(\frac{\mathrm{d}}{\mathrm{d}t}\intop_{\Omega_{e}}U^{e}\ell_{j}\left(x\right)\mathrm{d}x-\intop_{\Omega_{e}}\mathbf{F}\left(U,Q\right)\cdot\nabla\ell_{j}\left(x\right)\mathrm{d}x=-\intop_{\partial\varOmega_{e}}\mathbf{n}\cdot\mathbf{F}\left(U,Q\right)\ell_{j}\left(x\right)\mathrm{d}S\)</span></p>
 <p>and</p>
-<p><span class="math">\intop_{\varOmega_{e}}Q^{e}\ell_{j}\left(x\right)\mathrm{d}x=\intop_{\Omega_{e}}\ell_{j}\left(x\right)\nabla Q^{e}\mathrm{d}x+\intop_{\partial\Omega}\mathbf{n}\left[V^{*}-V^{e}\right]\ell_{j}\left(x\right)\mathrm{d}S</span></p>
+<p><span class="math notranslate nohighlight">\(\intop_{\varOmega_{e}}Q^{e}\ell_{j}\left(x\right)\mathrm{d}x=\intop_{\Omega_{e}}\ell_{j}\left(x\right)\nabla Q^{e}\mathrm{d}x+\intop_{\partial\Omega}\mathbf{n}\left[V^{*}-V^{e}\right]\ell_{j}\left(x\right)\mathrm{d}S\)</span></p>
 <p>Since the solution is discontinuous across the interfaces the fluxes are not defined at the
 interfaces. This requires the definition of a numerical flux to be defined at the interfaces.
 Different approaches exist for the definition of the fluxes which are solutions to the Riemann
@@ -140,7 +141,7 @@ these fluxes are upwinding which renders the spatial discreitzation numerically 
 In practice this means that wave lengths that are not well resolved are dissipated which
 renders the scheme numerically stable (in a linear sense).</p>
 <p>Once the domain is discretized the resulting system of equations is of the form</p>
-<p><span class="math">\frac{\partial U}{\partial t}=A(U)</span></p>
+<p><span class="math notranslate nohighlight">\(\frac{\partial U}{\partial t}=A(U)\)</span></p>
 <p>which can be integrated with a time integrator
 scheme. Different <strong>explicit</strong> temporal schemes are available in <code class="docutils literal notranslate"><span class="pre">TPS</span></code>.</p>
 </section>
