@@ -4,21 +4,40 @@ Overview
 Introduction
 ************
 
-The ``TPS`` code solves the Navier-Stokes (NS) equations or the Maxwell equations for 
-Electro-Magnetics (EM) using the Finite Element Method (FEM). As the project evolves the
-different equations will be solved simultaneously (fully coupled) so that efficient,
-high-fidelity simulations of an Inductively Coupled Plasma (ICP) Torch can be made.
+The goal of the ``TPS`` code is to support high-fidelity simulations
+of inductively coupled plasma (ICP) torches.  Towards this eventual
+goal, the code currently supports single physics flow-only
+simulations by solving the compressible Navier--Stokes (NS) equations
+and electromagnetic-only simulations by solving the
+quasimagnetostatic approximation of Maxwell's equations.  Both models
+are discretized using the finite element method (FEM), and both
+solvers are implmented using the `MFEM <https://mfem.org>`_ library.
+As the project continues, the codebase will evolve to support
+additional physical models and multiphysics coupling to enable
+efficient, high-fidelity simulations of ICP torches and related plasma
+systems.
 
-At the moment, a Discontinuous Galerkin approach has been taken for the solution of the NS
-equations whereas a Continuous Galerkin (CG) approach has been taken for the solution of the
-EM equations. These are implemented using the `MFEM <https://mfem.org>`_ library 
+.. The ``TPS`` code solves the Navier-Stokes (NS) equations or the Maxwell equations for
+.. Electro-Magnetics (EM) using the Finite Element Method (FEM). As the project evolves the
+.. different equations will be solved simultaneously (fully coupled) so that efficient,
+.. high-fidelity simulations of an Inductively Coupled Plasma (ICP) Torch can be made.
+
+.. At the moment, a Discontinuous Galerkin approach has been taken for the solution of the NS
+.. equations whereas a Continuous Galerkin (CG) approach has been taken for the solution of the
+.. EM equations. These are implemented using the `MFEM <https://mfem.org>`_ library 
 
 *Note that this is a research project and these numerical schemes most probably change in
 future versons of the software.*
 
-Numerics
-************
 
+
+Physics and Numerics
+********************
+We currently support decoupled simulations of fluid mechanics and electromagnetics.
+
+
+Flow
+------------
 We consider the NS equations expressed in conservative form
 :math:`\frac{\partial U}{\partial t}+\nabla\cdot\mathbf{F}\left(U,\nabla V\right)=0`
 where 
@@ -53,8 +72,8 @@ and the heat flux :math:`\mathbf{q}=-k\nabla T` with thermal coefficient
 :math:`Pr=0.71` for air. The viscosity coefficient follows the Sutherland law 
 :math:`\mu=\frac{1.458\cdot10^{-6}T^{3/2}}{T+110.4}`.
 
-The system of equations is expressed as
- 
+These equations may be written concisely as
+
 :math:`\begin{aligned}\frac{\partial U}{\partial t}+\nabla\cdot\mathbf{F}\left(U,Q\right) & =0\\
 Q-\nabla V & =0
 \end{aligned}`
@@ -83,6 +102,63 @@ Once the domain is discretized the resulting system of equations is of the form
 
 which can be integrated with a time integrator
 scheme. Different **explicit** temporal schemes are available in ``TPS``.
+
+
+Electromagnetics
+----------------
+We support simulation of low-frequency electromagnetics using the
+quasi-magnetostatic approximation of Maxwell's equations.
+Specifically, neglecting the displacement current and using a magnetic
+vector potential based formulation, the Ampere-Maxwell equation
+becomes
+
+:math:`\nabla \times \left( \mu^{-1} \nabla \times A \right) = J`,
+
+where :math:`A` is the magnetic vector potential, :math:`\mu` is the
+magnetic permeability, and :math:`J` is the current.  We assume that
+the only conductors in the domain are those carrying the driving
+current.  As such, :math:`J` represents a user-specified source
+current.  Further, the existing implementation is highly specialized
+to approximate the electromagnetic environment in a plasma torch
+geometry.  As such, we assume that 1) the magnetic permeability of all
+materials in the geometry is same and 2) the source current is
+composed of "rings" of uniform current density.  In this situation, it
+is convenient to non-dimensionalize the equation using a reference
+length :math:`\ell`, such as the ring radius, and the source current
+magnitude :math:`J_0`.  The resulting non-dimensional governing
+equation is given by
+
+:math:`\hat{\nabla} \times \hat{\nabla} \times \hat{A} = \hat{J}`,
+
+where :math:`\hat{A} = A/(\mu J_0 \ell^2)`, :math:`\hat{\nabla} = \ell
+\nabla`, and :math:`\hat{J} = J/J_0`.  This is the equation approximated by
+the solver.
+
+Finally, perfect electrical conductor (PEC) boundary conditions are
+assumed at all domain boundaries:
+
+:math:`A \times n = 0`,
+
+where :math:`n` denotes the outward pointing unit normal.
+
+The weak form corresponding to the quasi-magnetostatic model with PEC
+BCs is given by
+
+:math:`\int_{\Omega} (\nabla \times v) \cdot (\nabla \times \hat{A}) \, \mathrm{d}x = \int_{\Omega} v \cdot \hat{J} \, \mathrm{d}x \quad \forall v \in H_0(curl; \Omega),`
+
+where :math:`\Omega` denotes the computational domain and
+:math:`H_0(curl; \Omega)` is the usual :math:`H(curl)` space with
+homogeneous Dirichlet boundary conditions:
+
+:math:`H_0(curl; \Omega) = \left\{ v \in L^2(\Omega)^3 | \nabla \times v \in L^2(\Omega)^3, \, v \times n|_{\partial \Omega} = 0\right\}`,
+
+where :math:`\partial \Omega` denotes the boundary of the domain.
+
+This weak form is discretized using :math:`H(curl)`-conforming
+"Nedelec" finite element as provided by MFEM, leading to a sparse
+linear system.  This linear system is solved using the mimimum
+residuals (MINRES) method with Auxiliary-space Maxwell Solver (AMS)
+preconditioner from Hypre (through MFEM).
 
 
 Capabilities
