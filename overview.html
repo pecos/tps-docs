@@ -41,8 +41,12 @@
               <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Overview</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#introduction">Introduction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#numerics">Numerics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#capabilities">Capabilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#flow-solver">Flow Solver</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#governing-equations">Governing Equations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#numerics">Numerics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#capabilities">Capabilities</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="build.html">Build</a></li>
@@ -85,24 +89,23 @@ different equations will be solved simultaneously (fully coupled) so that effici
 high-fidelity simulations of an Inductively Coupled Plasma (ICP) Torch can be made.</p>
 <p>At the moment, a Discontinuous Galerkin approach has been taken for the solution of the NS
 equations whereas a Continuous Galerkin (CG) approach has been taken for the solution of the
-EM equations. These are implemented using the <a class="reference external" href="https://mfem.org">MFEM</a> library</p>
-<p><em>Note that this is a research project and these numerical schemes most probably change in
-future versons of the software.</em></p>
+EM equations. These are implemented using the <a class="reference external" href="https://mfem.org">MFEM</a> library.</p>
 </section>
-<section id="numerics">
-<h2>Numerics<a class="headerlink" href="#numerics" title="Permalink to this headline"></a></h2>
-<p>We consider the NS equations expressed in conservative form
-<span class="math notranslate nohighlight">\(\frac{\partial U}{\partial t}+\nabla\cdot\mathbf{F}\left(U,\nabla V\right)=0\)</span>
-where
-<span class="math notranslate nohighlight">\(U=\left[\rho,\rho u,\rho v,\rho w,\rho E\right]^{T}\)</span> is the vector of conservative
-variables;
+<section id="flow-solver">
+<h2>Flow Solver<a class="headerlink" href="#flow-solver" title="Permalink to this headline"></a></h2>
+<hr class="docutils" />
+<section id="governing-equations">
+<h3>Governing Equations<a class="headerlink" href="#governing-equations" title="Permalink to this headline"></a></h3>
+<p>We consider the NS equations expressed in conservative form:</p>
+<p><span class="math notranslate nohighlight">\(\frac{\partial U}{\partial t}+\nabla\cdot\mathbf{F}\left(U,\nabla V\right)=0\)</span>, where</p>
+<p><span class="math notranslate nohighlight">\(U=\left[\rho,\rho u,\rho v,\rho w,\rho E\right]^{T}\)</span> is the vector of conservative variables,
 <span class="math notranslate nohighlight">\(V=\left[\rho,u,v,w,p\right]^{T}\)</span> is the vector of primitive variables with pressure
 <span class="math notranslate nohighlight">\(p=\left(\gamma-1\right)\rho\left(E-\frac{1}{2}\left(u^{2}+v^{2}+w^{2}\right)\right)\)</span>
 and total energy
-<span class="math notranslate nohighlight">\(E=c_{v}T+\frac{1}{2}\left(u^{2}+v^{2}+w^{2}\right)\)</span> ; and
-<span class="math notranslate nohighlight">\(\mathbf{F}=\left[F_{c}^{x}-F_{v}^{x},F_{c}^{y}-F_{v}^{y},F_{c}^{z}-F_{v}^{z}\right]\)</span> where
-<span class="math notranslate nohighlight">\(F_{c}^{i}, F_{v}^{i}\)</span> are the convective and viscous fluxes, respectively, defined as
-<span class="math notranslate nohighlight">\(\left[F_{c}^{x},F_{c}^{y},F_{c}^{z}\right]=\left[\begin{array}{ccc}
+<span class="math notranslate nohighlight">\(E=c_{v}T+\frac{1}{2}\left(u^{2}+v^{2}+w^{2}\right)\)</span> ; and</p>
+<p><span class="math notranslate nohighlight">\(\mathbf{F}=\left[F_{c}^{x}-F_{v}^{x},F_{c}^{y}-F_{v}^{y},F_{c}^{z}-F_{v}^{z}\right]\)</span> where</p>
+<p><span class="math notranslate nohighlight">\(F_{c}^{i}, F_{v}^{i}\)</span> are the convective and viscous fluxes, respectively, defined as:</p>
+<p><span class="math notranslate nohighlight">\(\left[F_{c}^{x},F_{c}^{y},F_{c}^{z}\right]=\left[\begin{array}{ccc}
 \rho u &amp; \rho v &amp; \rho w\\
 \rho u^{2}+p &amp; \rho uv &amp; \rho uw\\
 \rho uv &amp; \rho v^{2}+p &amp; \rho vw\\
@@ -115,46 +118,53 @@ u\left(\rho E+p\right) &amp; v\left(\rho E+p\right) &amp; w\left(\rho E+p\right)
 \tau_{yx} &amp; \tau_{yy} &amp; \tau_{yz}\\
 \tau_{zx} &amp; \tau_{zy} &amp; \tau_{zz}\\
 u\tau_{xx}+v\tau_{yx}+w\tau_{zx}-q_{x} &amp; u\tau_{xy}+v\tau_{yy}+w\tau_{zy}-q_{y} &amp; u\tau_{xz}+v\tau_{yz}+w\tau_{zz}-q_{z}
-\end{array}\right]\)</span>
-where the stress tensor
+\end{array}\right]\)</span></p>
+<p>where the stress tensor
 <span class="math notranslate nohighlight">\(\tau_{ij}\)</span> is defined as
 <span class="math notranslate nohighlight">\(\tau_{ij}=\mu\left(\frac{\partial u_{i}}{\partial x_{j}}+\frac{\partial u_{j}}{\partial x_{i}}\right)-\frac{2}{3}\mu\nabla\cdot\mathbf{v}\delta_{ij}\)</span>
 and the heat flux <span class="math notranslate nohighlight">\(\mathbf{q}=-k\nabla T\)</span> with thermal coefficient
-<span class="math notranslate nohighlight">\(k=\frac{\mu c_{p}}{Pr}\)</span> where <span class="math notranslate nohighlight">\(Pr\)</span> is the Prandtl number, estimated as
-<span class="math notranslate nohighlight">\(Pr=0.71\)</span> for air. The viscosity coefficient follows the Sutherland law
+<span class="math notranslate nohighlight">\(k=\frac{\mu c_{p}}{Pr}\)</span> where <span class="math notranslate nohighlight">\(Pr\)</span> is the Prandtl number, estimated as <span class="math notranslate nohighlight">\(Pr=0.71\)</span> for air. The viscosity coefficient follows the Sutherland law
 <span class="math notranslate nohighlight">\(\mu=\frac{1.458\cdot10^{-6}T^{3/2}}{T+110.4}\)</span>.</p>
-<p>The system of equations is expressed as</p>
+<p>The resulting system of equations is expressed as:</p>
 <p><span class="math notranslate nohighlight">\(\begin{aligned}\frac{\partial U}{\partial t}+\nabla\cdot\mathbf{F}\left(U,Q\right) &amp; =0\\
 Q-\nabla V &amp; =0
 \end{aligned}\)</span></p>
+</section>
+<hr class="docutils" />
+<section id="numerics">
+<h3>Numerics<a class="headerlink" href="#numerics" title="Permalink to this headline"></a></h3>
 <p>We derive a discontinuous Galerkin formulation of the previous system in the usual manner,
 multiplying by the test function <span class="math notranslate nohighlight">\(\ell_{j}\left(\xi\right)\)</span> and integrating over
 the element</p>
 <p><span class="math notranslate nohighlight">\(\frac{\mathrm{d}}{\mathrm{d}t}\intop_{\Omega_{e}}U^{e}\ell_{j}\left(x\right)\mathrm{d}x-\intop_{\Omega_{e}}\mathbf{F}\left(U,Q\right)\cdot\nabla\ell_{j}\left(x\right)\mathrm{d}x=-\intop_{\partial\varOmega_{e}}\mathbf{n}\cdot\mathbf{F}\left(U,Q\right)\ell_{j}\left(x\right)\mathrm{d}S\)</span></p>
 <p>and</p>
 <p><span class="math notranslate nohighlight">\(\intop_{\varOmega_{e}}Q^{e}\ell_{j}\left(x\right)\mathrm{d}x=\intop_{\Omega_{e}}\ell_{j}\left(x\right)\nabla Q^{e}\mathrm{d}x+\intop_{\partial\Omega}\mathbf{n}\left[V^{*}-V^{e}\right]\ell_{j}\left(x\right)\mathrm{d}S\)</span></p>
-<p>Since the solution is discontinuous across the interfaces the fluxes are not defined at the
+<p>Since the solution is discontinuous across the interfaces, the fluxes are not defined at these
 interfaces. This requires the definition of a numerical flux to be defined at the interfaces.
 Different approaches exist for the definition of the fluxes which are solutions to the Riemann
-problem. Currently two approaches are provided, namely Lax-Friedrich and Roe solvers. Both
-these fluxes are upwinding which renders the spatial discreitzation numerically dissipative.
+problem. Currently two approaches are implemented, namely Lax-Friedrich and Roe solvers. Both
+of these flux options are upwinded which renders the spatial discreitzation numerically dissipative.
 In practice this means that wave lengths that are not well resolved are dissipated which
 renders the scheme numerically stable (in a linear sense).</p>
-<p>Once the domain is discretized the resulting system of equations is of the form</p>
+<p>Once the domain is discretized the resulting system of equations is of the form:</p>
 <p><span class="math notranslate nohighlight">\(\frac{\partial U}{\partial t}=A(U)\)</span></p>
 <p>which can be integrated with a time integrator
-scheme. Different <strong>explicit</strong> temporal schemes are available in <code class="docutils literal notranslate"><span class="pre">TPS</span></code>.</p>
+scheme. Different <strong>explicit</strong> temporal schemes are currently available in
+<code class="docutils literal notranslate"><span class="pre">TPS</span></code>.</p>
+<p><em>Note that this is a research project and these numerical schemes may change in
+future versons of the software.</em></p>
 </section>
+<hr class="docutils" />
 <section id="capabilities">
-<h2>Capabilities<a class="headerlink" href="#capabilities" title="Permalink to this headline"></a></h2>
-<p>Some of the main implemented capabilities are</p>
+<h3>Capabilities<a class="headerlink" href="#capabilities" title="Permalink to this headline"></a></h3>
+<p>A summary of the main flow-solver capabilities are:</p>
 <dl class="simple">
 <dt>Upwinding</dt><dd><p>Roe and Lax-Friedrich interface luxes</p>
 </dd>
-<dt>HDF5 Output</dt><dd><p>The solver outputs the solution at constant iteration intervals. Paraview ouput as well as
-HDF5 output are written to disk. The HDF5 are used when restarting the simulation.</p>
+<dt>HDF5 Output</dt><dd><p>The solver outputs the solution at constant iteration intervals. Paraview and
+HDF5 ouputs are supported (the HDF5 variants are used when restarting the simulation).</p>
 </dd>
-<dt>Boundary Conditions</dt><dd><p>Several boundary conditions are provided.</p>
+<dt>Boundary Conditions</dt><dd><p>Several boundary conditions are provided including:.</p>
 <ul class="simple">
 <li><p>Adiabatic wall</p></li>
 <li><p>Isothermal wall</p></li>
@@ -169,14 +179,15 @@ communicated concurrently with the computation of the interior of the domain.</p
 </dd>
 <dt>Restart with arbitrary # of MPU tasks and order</dt><dd><p>When restarting the simulation it is possible to define a different polynomial order of the
 solution. It is also possible to restart with a different number of MPI tasks (this requires
-solving the serial solution first).</p>
+creating an intermediary serialized version of solution first).</p>
 </dd>
-<dt>GPU version</dt><dd><p>It is also possible to run on GPU. Not all the features are available in the GPU version. In
+<dt>GPU variants</dt><dd><p>It is also possible to run on GPU. Not all the features are available in the GPU version. In
 particular it is not possible to run with variable time-step. The non-reflecting inlet is
-similarly not available. <em>Note that to run on GPU the ``TPS`` code and the ``MFEM`` library
-need to be compiled for GPU.</em></p>
+similarly not available. See more details on the <span class="xref std std-ref">build_page</span> page
+for details on enabling GPU support.</p>
 </dd>
 </dl>
+</section>
 </section>
 </section>
 
