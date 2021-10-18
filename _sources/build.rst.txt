@@ -119,6 +119,19 @@ e.g.::
   $ make -j 8     # parallel-build
 
 Assuming the build completed successfully, the resulting solver binary should
-be available in the src/ subdirectory::
+be available in the ``src/`` subdirectory::
 
   $ ./src/tps --version
+
+  ------------------------------------
+    _______ _____   _____
+   |__   __|  __ \ / ____|
+      | |  | |__) | (___  
+      | |  |  ___/ \___ \ 
+      | |  | |     ____) | 
+      |_|  |_|    |_____/ 
+  
+  TPS Version:  1.0 (dev)
+  Git Version:  31e48b1
+  MFEM Version: MFEM v4.2 (release)
+  ------------------------------------
