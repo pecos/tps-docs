@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Running &mdash; TPS  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Developer Resources" href="developer.html" />
+    <link rel="prev" title="Test" href="test.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> TPS
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build.html">Build</a></li>
+<li class="toctree-l1"><a class="reference internal" href="test.html">Test</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Running</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#mesh-files">Mesh Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#runfile">Runfile</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#restart">Restart</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#alternate-processor-counts-n-m">Alternate Processor Counts (N-&gt;M)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#terminating-early">Terminating Early</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#notes">Notes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="developer.html">Developer Resources</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">TPS</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Running</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/running.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="running">
+<h1>Running<a class="headerlink" href="#running" title="Permalink to this headline"></a></h1>
+<p>The two primary inputs required to initiate the <code class="docutils literal notranslate"><span class="pre">tps</span></code> binary from scratch are:</p>
+<ol class="arabic simple">
+<li><p>mesh file</p></li>
+<li><p>runfile</p></li>
+</ol>
+<section id="mesh-files">
+<h2>Mesh Files<a class="headerlink" href="#mesh-files" title="Permalink to this headline"></a></h2>
+<p>The mesh file format should be supported by MFEM; we typically use <a class="reference external" href="https://gmsh.info">Gmsh’s</a> native “MSH” saved in an older 2.x format required by
+MFEM.  Note that the older MSH format can be requested in Gmsh .geo files by including
+the following stanza:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Mesh</span><span class="o">.</span><span class="n">MshFileVersion</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>Example 2D and 3D meshes we use with regression testing are included in the
+<a class="reference external" href="https://github.com/pecos/tps/tree/main/test/meshes">test/meshes</a> area of
+the repository.</p>
+<p>In order to support boundary condition application, the resulting meshes for
+use with <code class="docutils literal notranslate"><span class="pre">tps</span></code> should include delineation of one or more boundary surfaces. This is
+typically accomplished with Gmsh in 3D by defining physical surfaces for each
+boundary you would like to treat separately in the corresponding .geo file. For
+example, the following identifies two boundaries that map to Gmsh surfaces:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Physical</span> <span class="n">Surface</span> <span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">=</span> <span class="p">{</span><span class="mi">13</span><span class="p">};</span>
+<span class="n">Physical</span> <span class="n">Surface</span> <span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">=</span> <span class="p">{</span><span class="mi">12</span><span class="p">};</span>
+</pre></div>
+</div>
+<p>The type of boundary is not indicated in the MSH file, instead, the assigned
+boundary numbers (e.g 1 and 2 in the above example) can be referenced by the
+<code class="docutils literal notranslate"><span class="pre">tps</span></code> runfile and assigned a desired type at runtime.</p>
+</section>
+<section id="runfile">
+<h2>Runfile<a class="headerlink" href="#runfile" title="Permalink to this headline"></a></h2>
+<p>The <em>runfile</em> controls all aspects of the runtime configuration including
+choice of input mesh, CFL and time integration settings, numerics settings, initial conditions,
+and boundary condition definitions. At present,
+this is a simple text-based inputfile (it will be refactored using a more
+flexible <em>ini</em> style in future releases).</p>
+<p>A specific input file must be specified on the command-line as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ ./tps --runFile inputs/input.2iters.cyl
+</pre></div>
+</div>
+<p>A variety of runfile examples are included in the <a class="reference external" href="https://github.com/pecos/tps/tree/main/test/inputs">test/inputs/</a> subdirectory along with
+a reference input file including more comments at <a class="reference external" href="https://github.com/pecos/tps/blob/main/src/runfileExample.run">src/runfileExample.run</a>.</p>
+<p>Note that the <code class="docutils literal notranslate"><span class="pre">patchNum</span></code> input for available boundary conditions (e.g. Inlet,
+Outlet, and Wall) should match the desired physical boundary surface assigned
+in the mesh file.</p>
+</section>
+<section id="restart">
+<h2>Restart<a class="headerlink" href="#restart" title="Permalink to this headline"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">tps</span></code> will dump HDF5-based restart files at an iteration frequency dictated
+by the runtime control &lt;ITERS_OUT&gt;.  These files can be used to continue an
+existing simulation in time when restart mode is enabled (&lt;RESTART_CYCLE&gt;). By
+default, the restart files are saved on a per MPI-process basis. In addition, a
+companion domain-decomposition partitioning file will be generate to cache the
+mesh partition configuration for a given MPI task count. The resulting file for
+a 4-MPI task case looks as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">partition</span><span class="mf">.4</span><span class="n">p</span><span class="o">.</span><span class="n">h5</span>
+</pre></div>
+</div>
+<p>In normal restart mode, the continuation must be performed using the same
+processor count that generated the restart files and the partition.*.h5 file
+must be present in the same directory.  Note that <code class="docutils literal notranslate"><span class="pre">tps</span></code> will override the
+solution restart files on each output, so care should be taken to preserve
+previous solution files in an alternate directory if you desire to maintain
+restart capability at a particular iteration count.</p>
+<p>In addition to physical state variables, the HDF5 restart files also include metadata
+to document the solution process including items like the total degrees of freedom,
+timestep value, current iteration and time, and polynomial order.  These items
+can be interrogated directly by name using standard HDF5 utilities; for example
+to access the iteration count attribute, issue:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ h5dump -a iteration restart_output.sol.1.h5
+
+HDF5 &quot;restart_output.sol.1.h5&quot; {
+ATTRIBUTE &quot;iteration&quot; {
+   DATATYPE  H5T_STD_I32LE
+   DATASPACE  SCALAR
+   DATA {
+   (0): 10
+   }
+}
+}
+</pre></div>
+</div>
+<section id="alternate-processor-counts-n-m">
+<h3>Alternate Processor Counts (N-&gt;M)<a class="headerlink" href="#alternate-processor-counts-n-m" title="Permalink to this headline"></a></h3>
+<p>In order to change processor counts during a long-running simulation, <code class="docutils literal notranslate"><span class="pre">tps</span></code>
+can be directed to generate a serialized restart solution that is housed in a
+single file. To enable this, specify the &lt;RESTART_SERIAL write&gt; option in the
+runfile. A typical use case when altering the task count is to just perform a
+single iteration starting from <em>N</em> restart files, so set the &lt;NMAX&gt; setting
+accordingly based on the starting restart files. Once complete, you can update
+the runfile again to use the &lt;RESTART_SERIAL read&gt; mode and execute with <em>M</em>
+MPI tasks (be sure to increase the &lt;NMAX&gt; setting).  This will read the serialized
+restart and decompose the domain and solution onto <em>M</em> tasks. New restart files
+will subsequently be saved across <em>M</em> files. The final step in the process is
+to disable the &lt;RESTART_SERIAL&gt; option for the next job execution so that the
+solution will continue to restart using the decomposed solution files from <em>M</em>
+tasks.</p>
+</section>
+</section>
+<section id="terminating-early">
+<h2>Terminating Early<a class="headerlink" href="#terminating-early" title="Permalink to this headline"></a></h2>
+<p>If a <code class="docutils literal notranslate"><span class="pre">tps</span></code> simulation is actively running, it will generally not complete
+until the maximum time or iteration count values are reached (as specified in
+the runfile).  If you would like to terminate the simulation immediately, you can create a
+<code class="docutils literal notranslate"><span class="pre">DIE</span></code> file in the running directory. This will trigger one final restart file
+generation so that no timesteps will be lost and the code will subsequently
+exit:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ touch DIE
+...
+Detected DIE file, terminating early...
+HDF5 restart files mode: write
+
+Creating HDF5 group for defined IO families
+--&gt; /solution : Solution state variables
+  --&gt; Saving (density)
+  --&gt; Saving (rho-u)
+  --&gt; Saving (rho-v)
+  --&gt; Saving (rho-w)
+  --&gt; Saving (rho-E)
+</pre></div>
+</div>
+</section>
+<section id="notes">
+<h2>Notes<a class="headerlink" href="#notes" title="Permalink to this headline"></a></h2>
+<p>Additional notes and caveats running the solver are highlighted as follows:</p>
+<ol class="arabic simple">
+<li><p>GPU execution configurations must use a fixed time-step (set DT_CONSTANT)</p></li>
+</ol>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Pecos Development Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
