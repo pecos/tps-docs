@@ -1,4 +1,4 @@
-Testing
+Test
 ========
 
 The TPS code base maintains a suite of regression tests to help support
@@ -58,7 +58,7 @@ which specific portions are failing:
 Continuous Integration (CI)
 ***************************
 
-Thee regression tests highlighted above are exercised automatically as part of
+The regression tests highlighted above are exercised automatically as part of
 the CI configuration enabled for pull requests using `GitHub Actions
 <https://github.com/pecos/tps/actions/workflows/build.yaml>`_ . Underlying
 tests differ slightly depending on whether ``TPS`` is configured for CPU or GPU
