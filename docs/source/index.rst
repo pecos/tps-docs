@@ -18,6 +18,7 @@ building and using the code.
    overview
    build
    test
+   running
    developer
 
 .. * :doc:`Overview <overview>`
