@@ -31,15 +31,15 @@ As such, the details described below, including both physical models
 and numerical methods are subject to change in future versons of the
 software.*
 
+----
 
-Physics and Numerics
-********************
-We currently support decoupled simulations of fluid mechanics and electromagnetics.
+Flow Solver
+************
 
+Governing Equations
+^^^^^^^^^^^^^^^^^^^
 
-Flow
-------------
-We consider the compressible NS equations expressed in conservative form
+We consider the NS equations expressed in conservative form:
 
 :math:`\frac{\partial U}{\partial t}+\nabla\cdot\mathbf{F}\left(U,\nabla V\right)=0`
 
@@ -75,15 +75,20 @@ estimated as :math:`Pr=0.71` for air. The viscosity coefficient
 follows Sutherland's law
 :math:`\mu=\frac{1.458\cdot10^{-6}T^{3/2}}{T+110.4}`.
 
-These equations may be written concisely as
+These equations may be written as the following first-order system:
 
 :math:`\begin{aligned}\frac{\partial U}{\partial t}+\nabla\cdot\mathbf{F}\left(U,Q\right) & =0\\
 Q-\nabla V & =0
 \end{aligned}`
 
-We derive a discontinuous Galerkin formulation of the previous system
-in the usual manner, multiplying by the test function
-:math:`\ell_{j}\left(\xi\right)` and integrating over the element
+----
+
+Numerics
+^^^^^^^^
+
+We derive a discontinuous Galerkin formulation of the previous system in the usual manner, 
+multiplying by the test function :math:`\ell_{j}\left(\xi\right)` and integrating over 
+the element
 
 :math:`\frac{\mathrm{d}}{\mathrm{d}t}\intop_{\Omega_{e}}U^{e}\ell_{j}\left(x\right)\mathrm{d}x-\intop_{\Omega_{e}}\mathbf{F}\left(U,Q\right)\cdot\nabla\ell_{j}\left(x\right)\mathrm{d}x=-\intop_{\partial\varOmega_{e}}\mathbf{n}\cdot\mathbf{F}\left(U,Q\right)\ell_{j}\left(x\right)\mathrm{d}S`
 
@@ -91,24 +96,69 @@ and
 
 :math:`\intop_{\varOmega_{e}}Q^{e}\ell_{j}\left(x\right)\mathrm{d}x=\intop_{\Omega_{e}}\ell_{j}\left(x\right)\nabla Q^{e}\mathrm{d}x+\intop_{\partial\Omega}\mathbf{n}\left[V^{*}-V^{e}\right]\ell_{j}\left(x\right)\mathrm{d}S`
 
-Since the solution is discontinuous across the interfaces the fluxes are not defined at the 
+Since the solution is discontinuous across the interfaces, the fluxes are not defined at these 
 interfaces. This requires the definition of a numerical flux to be defined at the interfaces. 
 Different approaches exist for the definition of the fluxes which are solutions to the Riemann
-problem. Currently two approaches are provided, namely Lax-Friedrich and Roe solvers. Both 
-these fluxes are upwinding which renders the spatial discreitzation numerically dissipative.
+problem. Currently two approaches are implemented, namely Lax-Friedrich and Roe solvers. Both 
+of these flux options are upwinded which renders the spatial discreitzation numerically dissipative.
 In practice this means that wave lengths that are not well resolved are dissipated which 
 renders the scheme numerically stable (in a linear sense).
 
-Once the domain is discretized the resulting system of equations is of the form
+Once the domain is discretized the resulting system of equations is of the form:
 
 :math:`\frac{\partial U}{\partial t}=R(U)`
 
 which can be integrated with a time integrator
-scheme. Different **explicit** temporal schemes are available in ``TPS``.
+scheme. Different **explicit** temporal schemes are currently available in
+``TPS``.
 
+----
 
-Electromagnetics
-----------------
+Capabilities
+^^^^^^^^^^^^
+
+A summary of the main flow-solver capabilities are:
+
+Upwinding
+  Roe and Lax-Friedrich interface luxes
+  
+HDF5 Output
+  The solver outputs the solution at constant iteration intervals. Paraview and
+  HDF5 ouputs are supported (the HDF5 variants are used when restarting the simulation).
+  
+Boundary Conditions
+  Several boundary conditions are provided including:.
+  
+  * Adiabatic wall
+  * Isothermal wall
+  * Reflecting pressure outlet
+  * Non-reflecting pressure outlet
+  * Reflecting density and velocity input
+  * Non-reflecting density and velocity input
+  
+Communication & computation overlap
+  In parallel simulations, communication of shared data between computational domains is 
+  communicated concurrently with the computation of the interior of the domain.
+  
+Restart with arbitrary # of MPI tasks and order
+  When restarting the simulation it is possible to define a different polynomial order of the 
+  solution. It is also possible to restart with a different number of MPI tasks (this requires
+  creating an intermediary serialized version of solution first).
+  
+GPU variants
+  It is also possible to run on GPU. Not all the features are available in the GPU version. In
+  particular it is not possible to run with variable time-step. The non-reflecting inlet is
+  similarly not available. See more details on the :doc:`build` page
+  for details on enabling GPU support.
+
+----
+
+EM Solver
+*********
+
+Governing Equations
+^^^^^^^^^^^^^^^^^^^
+
 We support simulation of low-frequency electromagnetics using the
 quasi-magnetostatic approximation of Maxwell's equations.
 Specifically, neglecting the displacement current and using a magnetic
@@ -144,6 +194,11 @@ assumed at all domain boundaries:
 
 where :math:`n` denotes the outward pointing unit normal.
 
+----
+
+Numerics
+^^^^^^^^
+
 The weak form corresponding to the quasi-magnetostatic model with PEC
 BCs is given by
 
@@ -164,39 +219,3 @@ residuals (MINRES) method with Auxiliary-space Maxwell Solver (AMS)
 preconditioner from Hypre (through MFEM).
 
 
-Flow Solver Capabilities
-************************
-
-Some of the main implemented capabilities are
-
-Upwinding
-  Roe and Lax-Friedrich interface luxes
-  
-HDF5 Output
-  The solver outputs the solution at constant iteration intervals. Paraview ouput as well as 
-  HDF5 output are written to disk. The HDF5 are used when restarting the simulation.
-  
-Boundary Conditions
-  Several boundary conditions are provided.
-  
-  * Adiabatic wall
-  * Isothermal wall
-  * Reflecting pressure outlet
-  * Non-reflecting pressure outlet
-  * Reflecting density and velocity input
-  * Non-reflecting density and velocity input
-  
-Communication & computation overlap
-  In parallel simulations, communication of shared data between computational domains is 
-  communicated concurrently with the computation of the interior of the domain.
-  
-Restart with arbitrary # of MPU tasks and order
-  When restarting the simulation it is possible to define a different polynomial order of the 
-  solution. It is also possible to restart with a different number of MPI tasks (this requires
-  solving the serial solution first).
-  
-GPU version
-  It is also possible to run on GPU. Not all the features are available in the GPU version. In
-  particular it is not possible to run with variable time-step. The non-reflecting inlet is
-  similarly not available. *Note that to run on GPU the ``TPS`` code and the ``MFEM`` library
-  need to be compiled for GPU.*
