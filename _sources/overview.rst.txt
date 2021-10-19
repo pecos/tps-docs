@@ -135,7 +135,7 @@ Communication & computation overlap
   In parallel simulations, communication of shared data between computational domains is 
   communicated concurrently with the computation of the interior of the domain.
   
-Restart with arbitrary # of MPU tasks and order
+Restart with arbitrary # of MPI tasks and order
   When restarting the simulation it is possible to define a different polynomial order of the 
   solution. It is also possible to restart with a different number of MPI tasks (this requires
   creating an intermediary serialized version of solution first).
