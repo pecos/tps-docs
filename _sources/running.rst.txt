@@ -4,7 +4,7 @@ Running
 The two primary inputs required to initiate the ``tps`` binary from scratch are:
 
 #. mesh file
-#. runfile
+#. input options
 
 Mesh Files
 **********
@@ -20,7 +20,9 @@ Example 2D and 3D meshes we use with regression testing are included in the
 `test/meshes <https://github.com/pecos/tps/tree/main/test/meshes>`_ area of
 the repository.
 
-In order to support boundary condition application, the resulting meshes for
+Boundary attributes
+-------------------
+In order to support boundary condition enforcement in the flow solver, the resulting meshes for
 use with ``tps`` should include delineation of one or more boundary surfaces. This is
 typically accomplished with Gmsh in 3D by defining physical surfaces for each
 boundary you would like to treat separately in the corresponding .geo file. For
@@ -33,10 +35,23 @@ The type of boundary is not indicated in the MSH file, instead, the assigned
 boundary numbers (e.g 1 and 2 in the above example) can be referenced by the
 ``tps`` runfile and assigned a desired type at runtime.
 
-Runfile
-*******
+Volume attributes
+-----------------
+To enable specification of the source current, the EM implementation
+assumes that the mesh has 5 volume attributes: 1 defining the
+free-space (source current free) domain, and 4 defining source current
+rings.  See the `QuasiMagnetostaticSolver <https://github.com/pecos/tps/tree/main/src/quasimagnetostatic.cpp>`_
+class for details of the assumed source current.
 
-The *runfile* controls all aspects of the runtime configuration including
+
+Input options
+*************
+
+The flow and EM solvers handle input options separately.
+
+Flow
+----
+For the flow solver, the *runfile* controls all aspects of the runtime configuration including
 choice of input mesh, CFL and time integration settings, numerics settings, initial conditions,
 and boundary condition definitions. At present,
 this is a simple text-based inputfile (it will be refactored using a more
@@ -54,6 +69,50 @@ a reference input file including more comments at `src/runfileExample.run
 Note that the ``patchNum`` input for available boundary conditions (e.g. Inlet,
 Outlet, and Wall) should match the desired physical boundary surface assigned
 in the mesh file.
+
+Electromagnetics
+----------------
+
+For the EM solver, all input options are specified through the command
+line.  To invoke the EM solver, use the ``--em-only`` option.
+Additional command line options are as follows::
+
+  Usage: ./src/tps [options] ...
+  Options:
+     -h, --help
+  	Print this help message and exit.
+     -flow, --flow-only, -nflow, --not-flow-only, current option: --flow-only
+	Perform flow only simulation
+     -run <string>, --runFile <string>, current value: <unknown>
+	Name of the input file with run options.
+     -v, --version, , --no-version, current option: --no-version
+	Print code version and exit
+     -em, --em-only, -nem, --not-em-only, current option: --not-em-only
+	Perform electromagnetics only simulation
+     -m <string>, --mesh <string>, current value: hello.msh
+	Mesh file (for EM-only simulation)
+     -o <int>, --order <int>, current value: 1
+	Finite element order (polynomial degree) (for EM-only).
+     -r <int>, --ref <int>, current value: 0
+	Number of uniform refinements (for EM-only).
+     -i <int>, --maxiter <int>, current value: 100
+	Maximum number of iterations (for EM-only).
+     -t <double>, --rtol <double>, current value: 1e-06
+	Solver relative tolerance (for EM-only).
+     -a <double>, --atol <double>, current value: 1e-10
+	Solver absolute tolerance (for EM-only).
+     -top, --top-only, -ntop, --no-top-only, current option: --no-top-only
+	Run current through top branch only
+     -bot, --bot-only, -nbot, --no-bot-only, current option: --no-bot-only
+	Run current through bottom branch only
+     -by <string>, --byfile <string>, current value: By.h5
+	File for By interpolant output.
+     -ny <int>, --nyinterp <int>, current value: 0
+	Number of interpolation points.
+     -y0 <double>, --yinterpMin <double>, current value: 0
+	Minimum y interpolation value
+     -y1 <double>, --yinterpMax <double>, current value: 1
+	Maximum y interpolation value
 
 
 Restart
@@ -95,7 +154,7 @@ to access the iteration count attribute, issue::
   }
 
 Alternate Processor Counts (N->M)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+*********************************
 
 In order to change processor counts during a long-running simulation, ``tps``
 can be directed to generate a serialized restart solution that is housed in a
@@ -140,4 +199,4 @@ Notes
 Additional notes and caveats running the solver are highlighted as follows:
 
 #. GPU execution configurations must use a fixed time-step (set DT_CONSTANT)
-   
+#. The restart, processor count change, and early termination capabilities are currently only supported in the flow solver.

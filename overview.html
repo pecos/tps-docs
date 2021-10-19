@@ -47,6 +47,11 @@
 <li class="toctree-l3"><a class="reference internal" href="#capabilities">Capabilities</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#em-solver">EM Solver</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Governing Equations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id2">Numerics</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="build.html">Build</a></li>
@@ -83,49 +88,59 @@
 <h1>Overview<a class="headerlink" href="#overview" title="Permalink to this headline"></a></h1>
 <section id="introduction">
 <h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline"></a></h2>
-<p>The <code class="docutils literal notranslate"><span class="pre">TPS</span></code> code solves the Navier-Stokes (NS) equations or the Maxwell equations for
-Electro-Magnetics (EM) using the Finite Element Method (FEM). As the project evolves the
-different equations will be solved simultaneously (fully coupled) so that efficient,
-high-fidelity simulations of an Inductively Coupled Plasma (ICP) Torch can be made.</p>
-<p>At the moment, a Discontinuous Galerkin approach has been taken for the solution of the NS
-equations whereas a Continuous Galerkin (CG) approach has been taken for the solution of the
-EM equations. These are implemented using the <a class="reference external" href="https://mfem.org">MFEM</a> library.</p>
+<p>The goal of the <code class="docutils literal notranslate"><span class="pre">TPS</span></code> code is to support high-fidelity simulations
+of inductively coupled plasma (ICP) torches.  Towards this eventual
+goal, the code currently supports single physics flow-only
+simulations by solving the compressible Navier–Stokes (NS) equations
+and electromagnetic-only simulations by solving the
+quasimagnetostatic approximation of Maxwell’s equations.  Both models
+are discretized using the finite element method (FEM), and both
+solvers are implmented using the <a class="reference external" href="https://mfem.org">MFEM</a> library.
+As the project continues, the codebase will evolve to support
+additional physical models and multiphysics coupling to enable
+efficient, high-fidelity simulations of ICP torches and related plasma
+systems.</p>
+<p><em>Note that this code is the product of an ongoing research project.
+As such, the details described below, including both physical models
+and numerical methods are subject to change in future versons of the
+software.</em></p>
 </section>
+<hr class="docutils" />
 <section id="flow-solver">
 <h2>Flow Solver<a class="headerlink" href="#flow-solver" title="Permalink to this headline"></a></h2>
-<hr class="docutils" />
 <section id="governing-equations">
 <h3>Governing Equations<a class="headerlink" href="#governing-equations" title="Permalink to this headline"></a></h3>
 <p>We consider the NS equations expressed in conservative form:</p>
-<p><span class="math notranslate nohighlight">\(\frac{\partial U}{\partial t}+\nabla\cdot\mathbf{F}\left(U,\nabla V\right)=0\)</span>, where</p>
-<p><span class="math notranslate nohighlight">\(U=\left[\rho,\rho u,\rho v,\rho w,\rho E\right]^{T}\)</span> is the vector of conservative variables,
-<span class="math notranslate nohighlight">\(V=\left[\rho,u,v,w,p\right]^{T}\)</span> is the vector of primitive variables with pressure
-<span class="math notranslate nohighlight">\(p=\left(\gamma-1\right)\rho\left(E-\frac{1}{2}\left(u^{2}+v^{2}+w^{2}\right)\right)\)</span>
-and total energy
-<span class="math notranslate nohighlight">\(E=c_{v}T+\frac{1}{2}\left(u^{2}+v^{2}+w^{2}\right)\)</span> ; and</p>
-<p><span class="math notranslate nohighlight">\(\mathbf{F}=\left[F_{c}^{x}-F_{v}^{x},F_{c}^{y}-F_{v}^{y},F_{c}^{z}-F_{v}^{z}\right]\)</span> where</p>
-<p><span class="math notranslate nohighlight">\(F_{c}^{i}, F_{v}^{i}\)</span> are the convective and viscous fluxes, respectively, defined as:</p>
-<p><span class="math notranslate nohighlight">\(\left[F_{c}^{x},F_{c}^{y},F_{c}^{z}\right]=\left[\begin{array}{ccc}
-\rho u &amp; \rho v &amp; \rho w\\
-\rho u^{2}+p &amp; \rho uv &amp; \rho uw\\
-\rho uv &amp; \rho v^{2}+p &amp; \rho vw\\
-\rho uw &amp; \rho vw &amp; \rho w^{2}+p\\
-u\left(\rho E+p\right) &amp; v\left(\rho E+p\right) &amp; w\left(\rho E+p\right)
+<p><span class="math notranslate nohighlight">\(\frac{\partial U}{\partial t}+\nabla\cdot\mathbf{F}\left(U,\nabla V\right)=0\)</span></p>
+<p>where <span class="math notranslate nohighlight">\(U=\left[\rho,\rho u_i,\rho E\right]^{T}\)</span> is the vector of
+conservative variables, and <span class="math notranslate nohighlight">\(V=\left[\rho,u_i,p\right]^{T}\)</span> is
+the vector of primitive variables with pressure
+<span class="math notranslate nohighlight">\(p=\left(\gamma-1\right)\rho\left(E-\frac{1}{2} u_i u_i\right)\)</span>
+and total energy <span class="math notranslate nohighlight">\(E=c_{v}T+\frac{1}{2}\left(u_i u_i\right)\)</span>.
+Further, the flux in the <span class="math notranslate nohighlight">\(i\)</span> th direction is given by
+<span class="math notranslate nohighlight">\(F_i=F^c_i-F^{v}_i\)</span> where <span class="math notranslate nohighlight">\(F^{c}_{i}, F^{v}_{i}\)</span> are the
+convective and viscous fluxes in the <span class="math notranslate nohighlight">\(i\)</span> th direction,
+respectively, defined as</p>
+<p><span class="math notranslate nohighlight">\(F^{c}_i=\left[\begin{array}{c}
+\rho u_i\\
+\rho u_i u_j +p \delta_{ij}\\
+u_i \left(\rho E+p\right)
 \end{array}\right]\)</span></p>
-<p><span class="math notranslate nohighlight">\(\left[F_{v}^{x},F_{v}^{y},F_{v}^{z}\right]=\left[\begin{array}{ccc}
-0 &amp; 0 &amp; 0\\
-\tau_{xx} &amp; \tau_{xy} &amp; \tau_{xz}\\
-\tau_{yx} &amp; \tau_{yy} &amp; \tau_{yz}\\
-\tau_{zx} &amp; \tau_{zy} &amp; \tau_{zz}\\
-u\tau_{xx}+v\tau_{yx}+w\tau_{zx}-q_{x} &amp; u\tau_{xy}+v\tau_{yy}+w\tau_{zy}-q_{y} &amp; u\tau_{xz}+v\tau_{yz}+w\tau_{zz}-q_{z}
+<p><span class="math notranslate nohighlight">\(F^{v}_i=\left[\begin{array}{c}
+0 \\
+\tau_{ij}\\
+u_j \tau_{ji} - q_i
 \end{array}\right]\)</span></p>
-<p>where the stress tensor
-<span class="math notranslate nohighlight">\(\tau_{ij}\)</span> is defined as
-<span class="math notranslate nohighlight">\(\tau_{ij}=\mu\left(\frac{\partial u_{i}}{\partial x_{j}}+\frac{\partial u_{j}}{\partial x_{i}}\right)-\frac{2}{3}\mu\nabla\cdot\mathbf{v}\delta_{ij}\)</span>
-and the heat flux <span class="math notranslate nohighlight">\(\mathbf{q}=-k\nabla T\)</span> with thermal coefficient
-<span class="math notranslate nohighlight">\(k=\frac{\mu c_{p}}{Pr}\)</span> where <span class="math notranslate nohighlight">\(Pr\)</span> is the Prandtl number, estimated as <span class="math notranslate nohighlight">\(Pr=0.71\)</span> for air. The viscosity coefficient follows the Sutherland law
+<p>where <span class="math notranslate nohighlight">\(\tau_{ij}=\mu\left(\frac{\partial u_{i}}{\partial
+x_{j}}+\frac{\partial u_{j}}{\partial x_{i}}\right)-\frac{2}{3}\mu
+\frac{\partial u_k}{\partial k} \delta_{ij}\)</span> is the viscous stress
+tensor and <span class="math notranslate nohighlight">\(q_i=-k \frac{\partial T}{\partial x_i}\)</span> is the
+viscous heat flux.  The thermal conductivity is given by
+<span class="math notranslate nohighlight">\(k=\frac{\mu c_{p}}{Pr}\)</span> where <span class="math notranslate nohighlight">\(Pr\)</span> is the Prandtl number,
+estimated as <span class="math notranslate nohighlight">\(Pr=0.71\)</span> for air. The viscosity coefficient
+follows Sutherland’s law
 <span class="math notranslate nohighlight">\(\mu=\frac{1.458\cdot10^{-6}T^{3/2}}{T+110.4}\)</span>.</p>
-<p>The resulting system of equations is expressed as:</p>
+<p>These equations may be written as the following first-order system:</p>
 <p><span class="math notranslate nohighlight">\(\begin{aligned}\frac{\partial U}{\partial t}+\nabla\cdot\mathbf{F}\left(U,Q\right) &amp; =0\\
 Q-\nabla V &amp; =0
 \end{aligned}\)</span></p>
@@ -147,12 +162,10 @@ of these flux options are upwinded which renders the spatial discreitzation nume
 In practice this means that wave lengths that are not well resolved are dissipated which
 renders the scheme numerically stable (in a linear sense).</p>
 <p>Once the domain is discretized the resulting system of equations is of the form:</p>
-<p><span class="math notranslate nohighlight">\(\frac{\partial U}{\partial t}=A(U)\)</span></p>
+<p><span class="math notranslate nohighlight">\(\frac{\partial U}{\partial t}=R(U)\)</span></p>
 <p>which can be integrated with a time integrator
 scheme. Different <strong>explicit</strong> temporal schemes are currently available in
 <code class="docutils literal notranslate"><span class="pre">TPS</span></code>.</p>
-<p><em>Note that this is a research project and these numerical schemes may change in
-future versons of the software.</em></p>
 </section>
 <hr class="docutils" />
 <section id="capabilities">
@@ -183,10 +196,61 @@ creating an intermediary serialized version of solution first).</p>
 </dd>
 <dt>GPU variants</dt><dd><p>It is also possible to run on GPU. Not all the features are available in the GPU version. In
 particular it is not possible to run with variable time-step. The non-reflecting inlet is
-similarly not available. See more details on the <span class="xref std std-ref">build_page</span> page
+similarly not available. See more details on the <a class="reference internal" href="build.html"><span class="doc">Build</span></a> page
 for details on enabling GPU support.</p>
 </dd>
 </dl>
+</section>
+</section>
+<hr class="docutils" />
+<section id="em-solver">
+<h2>EM Solver<a class="headerlink" href="#em-solver" title="Permalink to this headline"></a></h2>
+<section id="id1">
+<h3>Governing Equations<a class="headerlink" href="#id1" title="Permalink to this headline"></a></h3>
+<p>We support simulation of low-frequency electromagnetics using the
+quasi-magnetostatic approximation of Maxwell’s equations.
+Specifically, neglecting the displacement current and using a magnetic
+vector potential based formulation, the Ampere-Maxwell equation
+becomes</p>
+<p><span class="math notranslate nohighlight">\(\nabla \times \left( \mu^{-1} \nabla \times A \right) = J\)</span>,</p>
+<p>where <span class="math notranslate nohighlight">\(A\)</span> is the magnetic vector potential, <span class="math notranslate nohighlight">\(\mu\)</span> is the
+magnetic permeability, and <span class="math notranslate nohighlight">\(J\)</span> is the current.  We assume that
+the only conductors in the domain are those carrying the driving
+current.  Thus, <span class="math notranslate nohighlight">\(J\)</span> represents a user-specified source
+current.  Further, the existing implementation is highly specialized
+to approximate the electromagnetic environment in a plasma torch
+geometry.  As such, we assume that 1) the magnetic permeability of all
+materials in the geometry is same and 2) the source current is
+composed of “rings” of uniform current density.  In this situation, it
+is convenient to non-dimensionalize the equation using a reference
+length <span class="math notranslate nohighlight">\(\ell\)</span>, such as the ring radius, and the source current
+magnitude <span class="math notranslate nohighlight">\(J_0\)</span>.  The resulting non-dimensional governing
+equation is given by</p>
+<p><span class="math notranslate nohighlight">\(\hat{\nabla} \times \hat{\nabla} \times \hat{A} = \hat{J}\)</span>,</p>
+<p>where <span class="math notranslate nohighlight">\(\hat{A} = A/(\mu J_0 \ell^2)\)</span>, <span class="math notranslate nohighlight">\(\hat{\nabla} = \ell
+\nabla\)</span>, and <span class="math notranslate nohighlight">\(\hat{J} = J/J_0\)</span>.  This is the equation approximated by
+the solver.</p>
+<p>Finally, perfect electrical conductor (PEC) boundary conditions are
+assumed at all domain boundaries:</p>
+<p><span class="math notranslate nohighlight">\(A \times n = 0\)</span>,</p>
+<p>where <span class="math notranslate nohighlight">\(n\)</span> denotes the outward pointing unit normal.</p>
+</section>
+<hr class="docutils" />
+<section id="id2">
+<h3>Numerics<a class="headerlink" href="#id2" title="Permalink to this headline"></a></h3>
+<p>The weak form corresponding to the quasi-magnetostatic model with PEC
+BCs is given by</p>
+<p><span class="math notranslate nohighlight">\(\int_{\Omega} (\nabla \times v) \cdot (\nabla \times \hat{A}) \, \mathrm{d}x = \int_{\Omega} v \cdot \hat{J} \, \mathrm{d}x \quad \forall v \in H_0(curl; \Omega),\)</span></p>
+<p>where <span class="math notranslate nohighlight">\(\Omega\)</span> denotes the computational domain and
+<span class="math notranslate nohighlight">\(H_0(curl; \Omega)\)</span> is the usual <span class="math notranslate nohighlight">\(H(curl)\)</span> space with
+homogeneous Dirichlet boundary conditions:</p>
+<p><span class="math notranslate nohighlight">\(H_0(curl; \Omega) = \left\{ v \in L^2(\Omega)^3 | \nabla \times v \in L^2(\Omega)^3, \, v \times n|_{\partial \Omega} = 0\right\}\)</span>,</p>
+<p>with <span class="math notranslate nohighlight">\(\partial \Omega\)</span> denoting the boundary of the domain.</p>
+<p>This weak form is discretized using <span class="math notranslate nohighlight">\(H(curl)\)</span>-conforming
+“Nedelec” finite element as provided by MFEM, leading to a sparse
+linear system.  This linear system is solved using the mimimum
+residuals (MINRES) method with Auxiliary-space Maxwell Solver (AMS)
+preconditioner from Hypre (through MFEM).</p>
 </section>
 </section>
 </section>
