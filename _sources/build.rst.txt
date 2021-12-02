@@ -8,7 +8,7 @@ are available locally. In general, you will need:
 * `MFEM <https://github.com/mfem/mfem>`_ (and associated dependencies)
   
   * MPI C++ compiler 
-  * `Hypre <https://github.com/hypre-space/hypre>`_
+  * `Hypre <https://github.com/hypre-space/hypre>`_ (v2.16.0 - v2.20.0)
   * `Metis <http://glaros.dtc.umn.edu/gkhome/metis/metis/download>`_
     
 * `GRVY <https://github.com/hpcsi/grvy>`_
