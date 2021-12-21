@@ -59,7 +59,7 @@ Next, use the ``configure`` script to define various compilation settings and
 dependency library paths.  See ``configure --help`` for more information on
 available options.  The build system will check for a valid MFEM installation
 via the **MFEM_DIR** environment variable; alternatively, you can specify the
-desired path using the `--with-mfem` option.
+desired path using the ``--with-mfem`` option.
 Note that this variable may already be set when using pre-installed
 versions of MFEM that ship with user-environment modules.  The ``configure``
 step will differ depending on whether this is a CPU or GPU build. In the GPU
