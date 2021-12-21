@@ -123,9 +123,9 @@ tarball.</p>
 <h2>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline"></a></h2>
 <p>Next, use the <code class="docutils literal notranslate"><span class="pre">configure</span></code> script to define various compilation settings and
 dependency library paths.  See <code class="docutils literal notranslate"><span class="pre">configure</span> <span class="pre">--help</span></code> for more information on
-available options.  At a minimum, you will want to set the variables
-<strong>MFEM_INC</strong> and <strong>MFEM_LIB</strong> to the paths of the desired MFEM installation to
-resolve header and library files, respectively
+available options.  The build system will check for a valid MFEM installation
+via the <strong>MFEM_DIR</strong> environment variable; alternatively, you can specify the
+desired path using the <cite>–with-mfem</cite> option.
 Note that this variable may already be set when using pre-installed
 versions of MFEM that ship with user-environment modules.  The <code class="docutils literal notranslate"><span class="pre">configure</span></code>
 step will differ depending on whether this is a CPU or GPU build. In the GPU
@@ -141,21 +141,19 @@ Currently Loaded Modules:
   5) libfabric/1.10.1  11) phdf5/1.10.6    17) mfem/4.2
   6) mpich/3.3.2-ofi   12) netcdf/4.7.3
 
-$ ./configure -I$PETSC_INC LDFLAGS=&quot;-L$PETSC_LIB -lpetsc&quot;
+$ ./configure --with-mfem=$MFEM_DIR
 </pre></div>
 </div>
 <p><strong>GPU example using locally built MFEM with CUDA backend</strong></p>
 <p>The <code class="docutils literal notranslate"><span class="pre">CUDA_ARCH</span></code> setting is required to define the target GPU and should match
 the target execution hardware:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ export MFEM_INC=&lt;yourpath/mfem-cuda&gt;/include
-$ export MFEM_LIB=&lt;yourpath&gt;mfem-cuda/lib
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ export MFEM_DIR=&lt;yourpath/mfem-cuda&gt;
 $ ./configure --enable-gpu-cuda CUDA_ARCH=sm_75
 </pre></div>
 </div>
 <p><strong>GPU example using locally built MFEM with HIP backend</strong></p>
 <p>Similarly, the <code class="docutils literal notranslate"><span class="pre">HIP_ARCH</span></code> setting is required to define the target GPU architecture:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ export MFEM_INC=&lt;yourpath/mfem-hip&gt;/include
-$ export MFEM_LIB=&lt;yourpath&gt;mfem-hip/lib
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ export MFEM_DIR=&lt;yourpath/mfem-hip&gt;
 $ ./configure --enable-gpu-hip HIP_ARCH=gfx803
 </pre></div>
 </div>
@@ -190,8 +188,8 @@ be available in the <code class="docutils literal notranslate"><span class="pre"
     | |  | |     ____) |
     |_|  |_|    |_____/
 
-TPS Version:  1.0 (dev)
-Git Version:  31e48b1
+TPS Version:  1.1 (dev)
+Git Version:  c7189b0
 MFEM Version: MFEM v4.2 (release)
 ------------------------------------
 </pre></div>

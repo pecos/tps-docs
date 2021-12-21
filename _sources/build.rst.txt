@@ -57,9 +57,9 @@ Configuration
 
 Next, use the ``configure`` script to define various compilation settings and
 dependency library paths.  See ``configure --help`` for more information on
-available options.  At a minimum, you will want to set the variables
-**MFEM_INC** and **MFEM_LIB** to the paths of the desired MFEM installation to
-resolve header and library files, respectively
+available options.  The build system will check for a valid MFEM installation
+via the **MFEM_DIR** environment variable; alternatively, you can specify the
+desired path using the `--with-mfem` option.
 Note that this variable may already be set when using pre-installed
 versions of MFEM that ship with user-environment modules.  The ``configure``
 step will differ depending on whether this is a CPU or GPU build. In the GPU
@@ -77,23 +77,21 @@ types.  Several example ``configure`` examples are highlighted below:
     5) libfabric/1.10.1  11) phdf5/1.10.6    17) mfem/4.2
     6) mpich/3.3.2-ofi   12) netcdf/4.7.3
   
-  $ ./configure -I$PETSC_INC LDFLAGS="-L$PETSC_LIB -lpetsc"
+  $ ./configure --with-mfem=$MFEM_DIR
 
 **GPU example using locally built MFEM with CUDA backend**
 
 The ``CUDA_ARCH`` setting is required to define the target GPU and should match
 the target execution hardware::
 
-  $ export MFEM_INC=<yourpath/mfem-cuda>/include
-  $ export MFEM_LIB=<yourpath>mfem-cuda/lib
+  $ export MFEM_DIR=<yourpath/mfem-cuda>
   $ ./configure --enable-gpu-cuda CUDA_ARCH=sm_75
 
 **GPU example using locally built MFEM with HIP backend**
 
 Similarly, the ``HIP_ARCH`` setting is required to define the target GPU architecture::
   
-  $ export MFEM_INC=<yourpath/mfem-hip>/include
-  $ export MFEM_LIB=<yourpath>mfem-hip/lib
+  $ export MFEM_DIR=<yourpath/mfem-hip>
   $ ./configure --enable-gpu-hip HIP_ARCH=gfx803
 
 
@@ -121,8 +119,9 @@ e.g.::
 Assuming the build completed successfully, the resulting solver binary should
 be available in the ``src/`` subdirectory::
 
+		     
   $ ./src/tps --version
-
+  
   ------------------------------------
     _______ _____   _____
    |__   __|  __ \ / ____|
@@ -131,7 +130,7 @@ be available in the ``src/`` subdirectory::
       | |  | |     ____) | 
       |_|  |_|    |_____/ 
   
-  TPS Version:  1.0 (dev)
-  Git Version:  31e48b1
+  TPS Version:  1.1 (dev)
+  Git Version:  c7189b0
   MFEM Version: MFEM v4.2 (release)
   ------------------------------------
