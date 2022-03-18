@@ -18,7 +18,7 @@
 # -- Project information -----------------------------------------------------
 
 project = 'TPS'
-copyright = '2021, Pecos Development Team'
+copyright = '2021-2022, Pecos Development Team'
 author = 'Pecos Development Team'
 
 
